@@ -52,10 +52,43 @@ def get_relevant_chunks(query, collection, top_k=3):
     )
     return results["documents"][0]
 
-# Step 5: Mock response generation
+import requests
+
 def generate_response(context_chunks, query):
     context = "\n".join(context_chunks)
-    return f"Based on the catalog:\n{context}\n\nAnswer (manual): You can interpret the info above to answer: '{query}'"
+    prompt = f"""
+You are a helpful assistant for answering product catalog questions.
+
+Context:
+{context}
+
+Question:
+{query}
+
+Answer:
+"""
+
+    print("[debug] Sending prompt to Ollama...")
+
+    try:
+        response = requests.post(
+            "http://localhost:11434/api/generate",
+            json={
+                "model": "mistral",
+                "prompt": prompt,
+                "stream": False
+            }
+        )
+        print("[debug] Got response from Ollama.")
+        data = response.json()
+        return data["response"].strip()
+
+    except Exception as e:
+        print(f"[ERROR calling Mistral via Ollama]: {e}")
+        return "[LLM error]"
+
+
+
 
 # Main
 def main():
