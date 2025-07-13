@@ -1,35 +1,34 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import BusinessUpload from './pages/BusinessUpload';
+import UserBrowse from './pages/UserBrowse';
+import './App.css';
 
-function App() {
-  const [count, setCount] = useState(0)
-
+function Home() {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="home-container">
+      <div className="card" onClick={() => window.location.href = '/user'}>
+        <h2>User</h2>
+        <p>Have a question?</p>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
+      <div className="card" onClick={() => window.location.href = '/upload'}>
+        <h2>Business</h2>
+        <p>Upload your catalogue</p>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/user" element={<UserBrowse />} />
+        <Route path="/upload" element={<BusinessUpload />} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
