@@ -1,45 +1,48 @@
-from fastapi import FastAPI, UploadFile, File, Form
+from fastapi import FastAPI, UploadFile, Form, HTTPException,File
 from fastapi.middleware.cors import CORSMiddleware
-from app.rag_engine import extract_text_from_pdf, split_text, build_vector_db, get_relevant_chunks, generate_response
-import shutil
-import os
+from fastapi.responses import JSONResponse
+from app.models import init_db, add_business, get_businesses
+from app.utils import save_pdf, extract_text_from_pdf
+from app.rag_engine import embed_and_store, query_pdf
 
 app = FastAPI()
 
-# CORS for React/frontend
+
+origins = ["*"]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # change in production
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# In-memory reference to vector DB
-collection = None
+init_db()
 
-@app.post("/upload/")
-async def upload_pdf(file: UploadFile = File(...)):
-    # Save file
-    upload_path = f"uploads/{file.filename}"
-    with open(upload_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+@app.get("/businesses")
+def get_all_businesses():
+    return get_businesses()
 
-    # Build vector DB
-    global collection
-    raw_text = extract_text_from_pdf(upload_path)
-    chunks = split_text(raw_text)
-    collection = build_vector_db(chunks)
+@app.post("/upload")
+async def upload_catalog(
+    name: str = Form(...),
+    category: str = Form(...),
+    file: UploadFile = File(...)
+):
+    if not file.filename.endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Only PDFs allowed")
 
-    return {"message": "PDF uploaded and indexed successfully."}
+    file_path = save_pdf(file, name)
+    text = extract_text_from_pdf(file_path)
+    embed_and_store(name, text)
+    add_business(name, category, file_path)
+    return {"message": "Uploaded successfully"}
 
+@app.post("/ask")
+async def ask_question(name: str = Form(...), question: str = Form(...)):
+    try:
+        answer = query_pdf(name, question)
+        return {"answer": answer}
+    except Exception as e:
+        return JSONResponse(content={"answer": f"[LLM Error] {str(e)}"}, status_code=500)
 
-@app.post("/query/")
-async def query_pdf(question: str = Form(...)):
-    global collection
-    if collection is None:
-        return {"error": "No PDF uploaded yet. Please upload a PDF first."}
-
-    top_chunks = get_relevant_chunks(question, collection)
-    answer = generate_response(top_chunks, question)
-    return {"answer": answer}

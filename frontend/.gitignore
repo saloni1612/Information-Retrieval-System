@@ -22,3 +22,20 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+
+# SQLite databases
+*.db
+
+# Chroma DB and uploaded PDFs
+backend/chroma/
+backend/pdfs/
+
+# VSCode/IDE configs (optional)
+.vscode/
+.idea/
