@@ -77,6 +77,7 @@ from typing import List
 from chromadb import PersistentClient
 from chromadb.config import Settings
 from sentence_transformers import SentenceTransformer
+from app.llm import query_llm as generate_response
 
 CHROMA_DIR = "chroma"
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"  # Small, fast, and good enough
@@ -128,4 +129,14 @@ def embed_and_store(business_id: str, text: str):
 
 def query_pdf(business_id: str, question: str) -> str:
     chunks = query_vectorstore(question, business_id)
-    return generate_response(chunks, question)
+    context = "\n".join(chunks)
+    prompt = f"""You are a helpful assistant for answering product catalog questions.
+
+Context:
+{context}
+
+Question:
+{question}
+
+Answer:"""
+    return generate_response(prompt)

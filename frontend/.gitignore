@@ -39,3 +39,5 @@ backend/pdfs/
 # VSCode/IDE configs (optional)
 .vscode/
 .idea/
+
+backend/pdfs/
