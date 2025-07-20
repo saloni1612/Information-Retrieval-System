@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+PyPDF2
+sqlalchemy
+pydantic
+python-multipart
+chromadb
+httpx
