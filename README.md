@@ -1,11 +1,11 @@
-# Product Catalogue Chatbot
+# Information Retrieval System 
 
-A local chatbot that answers questions about your product catalog PDF by extracting text, embedding it using Sentence Transformers, storing it in ChromaDB, and generating responses using a local LLM (like Mistral via Ollama).
+A local chatbot that answers questions about your  PDF by extracting text, embedding it using Sentence Transformers, storing it in ChromaDB, and generating responses using a local LLM (like Mistral via Ollama).
 
 
 ## Features
 
-- Extracts text from any PDF product catalog
+- Extracts text from any PDF (for eg.product catalog)
 - Splits text into manageable chunks
 - Uses `all-MiniLM-L6-v2` for semantic search
 - Stores vector embeddings in ChromaDB
